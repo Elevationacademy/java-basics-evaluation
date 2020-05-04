@@ -8,4 +8,9 @@ public class DateCalculatorTest extends TestCase {
     public void testCalculate() {
         assertEquals(4,4);
     }
+
+    @Test
+    public void testAnother() {
+        assertEquals(3, 3);
+    }
 }

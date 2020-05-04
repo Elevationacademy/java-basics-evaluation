@@ -6,6 +6,6 @@ import org.junit.Test;
 public class MainTest extends TestCase {
     @Test
     public void testMain() {
-        assertEquals(3,3);
+        assertEquals(3,2);
     }
 }

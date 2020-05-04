@@ -12,3 +12,64 @@ repositories {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
+
+tasks.withType(Test) {
+  testLogging {
+    exceptionFormat "full"
+    events "started", "skipped", "passed", "failed", "standard_out"
+    showStandardStreams true
+    showExceptions true
+    showCauses true
+    showStackTraces true
+  }
+}
+
+gradle.buildFinished { buildResult ->
+    def output = []
+    def list = []
+    def dir = files { file("./build/test-results/test").listFiles() }
+    dir.each {
+        if (it.name.endsWith('.xml')) {
+            list << it
+        }
+    }
+    list.each {
+        def file = it
+        def parsed = new XmlParser().parseText(file.text)
+
+        def handle
+        handle = { node ->
+            if( node instanceof String ) {
+                node
+            }
+            else if (!node.'*') {
+                [ 'testName': node.'@name' ]
+            }
+            else {
+                [ (node.name()): node.collect( handle ) ]
+            }
+        }
+
+        def jsonObject = [ (parsed.name()): parsed.collect { node ->
+            if(node.'@name') {
+                [ (node.name()): node.collect(handle), 'testName': node.'@name' ]
+            }
+            else {
+                [ (node.name()): node.collect(handle) ]
+            }
+        } ]
+        jsonObject.put("testSuiteName", parsed.'@name')
+
+        def json = new groovy.json.JsonBuilder(jsonObject)
+
+        output << json
+    }
+    if (buildResult.failure) {
+        String compliationFailure = buildResult.failure
+        if (compliationFailure.endsWith('\':compileTestJava\'.')) {
+            output.add ('compilationError': 'true')
+        }
+    }
+    File file = new File('./build/test-results/test', 'test-results.json')
+    file.write(new groovy.json.JsonBuilder(output).toPrettyString())
+}
