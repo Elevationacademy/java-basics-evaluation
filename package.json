@@ -4,6 +4,6 @@
     "private": true,
     "scripts": {
       "tests:pre": "npm install",
-      "tests": "gradlew tests"
+      "tests": "gradlew test"
     }
   }
