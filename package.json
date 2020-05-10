@@ -1,0 +1,9 @@
+{
+    "name": "java-evaluation-template",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+      "tests:pre": "npm install",
+      "tests": "gradlew tests"
+    }
+  }
