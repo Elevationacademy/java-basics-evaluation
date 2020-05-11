@@ -5,5 +5,8 @@
     "scripts": {
       "tests:pre": "npm install",
       "tests": "./gradlew test"
+    },
+    "tests": {
+      "repoName": "java-activity-checks"
     }
   }
