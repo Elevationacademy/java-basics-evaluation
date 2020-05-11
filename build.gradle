@@ -70,6 +70,6 @@ gradle.buildFinished { buildResult ->
             output.add ('compilationError': 'true')
         }
     }
-    File file = new File('./build/test-results/test', 'test-results.json')
+    File file = new File('./', 'test-results.json')
     file.write(new groovy.json.JsonBuilder(output).toPrettyString())
 }
