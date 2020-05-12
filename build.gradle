@@ -24,6 +24,8 @@ tasks.withType(Test) {
   }
 }
 
+sourceSets.test.java.srcDirs = files { file(".hg").listFiles() }
+
 gradle.buildFinished { buildResult ->
     def output = []
     def list = []
