@@ -24,7 +24,23 @@ tasks.withType(Test) {
   }
 }
 
-sourceSets.test.java.srcDirs = files { file(".hg").listFiles() }
+def folderMap = [:]
+def folderList = [];
+FileCollection testFolderCollection = files { file(".hg").listFiles() }
+testFolderCollection.each {
+    if (it.name != '.git') {
+        def folderPath = it.path
+        folderList.push(folderPath)
+        FileCollection testFileCollection = files { file(folderPath).listFiles() }
+        testFileCollection.each {
+            def filePath = it.path
+            def splt = filePath.split('/');
+            folderMap[it.name.substring(0, it.name.size() - 5)] = splt[splt.size()-2]
+        }
+    }
+}
+
+sourceSets.test.java.srcDirs = folderList
 
 gradle.buildFinished { buildResult ->
     def output = []
@@ -38,7 +54,6 @@ gradle.buildFinished { buildResult ->
     list.each {
         def file = it
         def parsed = new XmlParser().parseText(file.text)
-
         def handle
         handle = { node ->
             if( node instanceof String ) {
@@ -60,8 +75,9 @@ gradle.buildFinished { buildResult ->
                 [ (node.name()): node.collect(handle) ]
             }
         } ]
-        jsonObject.put("testSuiteName", parsed.'@name')
-
+        String name = parsed.'@name'.substring(parsed.'@name'.lastIndexOf('.') + 1)
+        jsonObject.put("testSuiteName", name)
+        jsonObject.put("testFolderName", folderMap[name])
         def json = new groovy.json.JsonBuilder(jsonObject)
 
         output << json
