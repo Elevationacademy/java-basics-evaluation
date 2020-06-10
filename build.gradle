@@ -40,7 +40,23 @@ testFolderCollection.each {
     }
 }
 
-sourceSets.test.java.srcDirs = folderList
+//sourceSets.test.java.srcDirs = folderList
+
+compileTestJava {
+//    classpath += files(".compiledTests");
+}
+
+task compiledTestsCopy(type: Copy) {
+
+    from '.compiledTests'
+    include '*.class'
+    into 'build/classes/java/test/com'
+}
+
+test {
+      dependsOn(compiledTestsCopy)
+      testClassesDirs += files( {".compiledTests"});
+}
 
 gradle.buildFinished { buildResult ->
     def output = []
@@ -83,7 +99,7 @@ gradle.buildFinished { buildResult ->
         output << json
     }
     if (buildResult.failure) {
-        String compliationFailure = buildResult.failure
+        String compliationFailure = buildResult.failure;
         if (compliationFailure.endsWith('\':compileTestJava\'.')) {
             output.add ('compilationError': 'true')
         }
